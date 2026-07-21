@@ -1,0 +1,1 @@
+Write the README like a case study: problem, approach, architecture diagram, tech decisions, what you'd improve with more time

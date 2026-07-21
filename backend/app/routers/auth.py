@@ -57,8 +57,9 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
-    print(f"Login attempt for email: '{form_data.username}'")
-    db_user = get_user_by_email(db, form_data.username)
+    email = form_data.username.strip()
+    print(f"Login attempt for email: '{email}'")
+    db_user = get_user_by_email(db, email)
 
     if not db_user:
         print("User not found in database!")
