@@ -3,6 +3,8 @@ from fastapi import FastAPI, Depends
 from app.database.base import Base
 from app.database.db import engine
 from app.models.user import User
+from app.models.resume import Resume
+from app.routers import resume
 
 from app.routers import auth
 from app.core.dependencies import get_current_user
@@ -20,6 +22,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(resume.router)
 
 
 @app.get("/")

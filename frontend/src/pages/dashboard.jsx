@@ -1,27 +1,14 @@
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import DashboardLayout from "../layouts/DashboardLayout";
 
 function Dashboard() {
-
-  const navigate = useNavigate();
-
-  const { logout } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
-
   return (
-    <div style={{ padding: 40 }}>
+    <DashboardLayout>
 
       <h1>Dashboard</h1>
 
-      <button onClick={handleLogout}>
-        Logout
-      </button>
+      <p>Welcome to AI Resume Screener.</p>
 
-    </div>
+    </DashboardLayout>
   );
 }
 
