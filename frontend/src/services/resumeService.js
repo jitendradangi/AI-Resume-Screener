@@ -17,3 +17,23 @@ export const uploadResume = async (file) => {
 
   return response.data;
 };
+
+export const getMyResumes = async () => {
+  const response = await api.get("/resume/my-resumes", {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  return response.data;
+};
+
+export const deleteResume = async (id) => {
+  const response = await api.delete(`/resume/${id}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  return response.data;
+};

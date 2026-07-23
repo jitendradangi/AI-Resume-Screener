@@ -6,11 +6,17 @@ import App from "./App";
 import "./index.css";
 
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
+import { SidebarProvider } from "./context/SidebarContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <AuthProvider>
-      <App />
+      <ThemeProvider>
+        <SidebarProvider>
+          <App />
+        </SidebarProvider>
+      </ThemeProvider>
     </AuthProvider>
   </BrowserRouter>
 );
