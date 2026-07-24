@@ -6,7 +6,6 @@ from pydantic import ConfigDict
 from app.models.enums import ProcessingStatus
 from app.schemas.common import BaseSchema
 
-
 class ResumeBase(BaseSchema):
     """Common resume fields."""
 

@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.services.resume_service import resume_service
+from backend.app.services.resume import resume_service
 from app.core.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.resume import ResumeResponse

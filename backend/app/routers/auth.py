@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from app.database.session import get_db
 from app.schemas.user import UserCreate
 from app.schemas.auth import TokenResponse
-from app.services.user_service import (
+from backend.app.services.user import (
     create_user,
     get_user_by_email
 )
