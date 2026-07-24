@@ -22,8 +22,6 @@ class Resume(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    id = Column(Integer, primary_key=True, index=True)
-
     public_id = Column(
        CHAR(36),
        default=lambda: str(uuid.uuid4()),

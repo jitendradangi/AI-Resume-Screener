@@ -47,7 +47,9 @@ class Job(Base):
 
     experience_required = Column(Integer, nullable=True)
 
-    salary = Column(String(100), nullable=True)
+    salary_min = Column(Integer, nullable=True)
+    salary_max = Column(Integer, nullable=True)
+    salary_currency = Column(String(10),nullable=False, default="INR")
 
     description = Column(Text, nullable=False)
 

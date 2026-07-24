@@ -1,12 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
+import Login from "./pages/login";
+import Register from "./pages/register";
+import Dashboard from "./pages/dashboard";
 import UploadResume from "./pages/UploadResume";
 import MyResumes from "./pages/MyResumes";
 import ATSScore from "./pages/ATSScore";
-import Jobs from "./pages/Jobs";
+import Jobs from "./pages/jobs";
 import Profile from "./pages/Profile";
 
 import ProtectedRoute from "./routers/ProtectedRoute";

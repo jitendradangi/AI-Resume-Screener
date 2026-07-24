@@ -1,19 +1,15 @@
 from pathlib import Path
-import shutil
 import uuid
+from typing import List
 
-from fastapi import APIRouter, UploadFile, File
-
+from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy.orm import Session
-from fastapi import Depends
 
 from app.database.session import get_db
 from app.services.resume_service import resume_service
 from app.core.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.resume import ResumeResponse
-
-from typing import List
 
 router = APIRouter(
     prefix="/resume",
@@ -33,13 +29,17 @@ async def upload_resume(
     unique_filename = f"{uuid.uuid4()}_{file.filename}"
     file_path = UPLOAD_DIR / unique_filename
 
+    content = await file.read()
     with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+        buffer.write(content)
 
     resume = resume_service.create_resume(
        db=db,
        filename=unique_filename,
+       original_filename=file.filename,
        filepath=str(file_path),
+       filetype=file.content_type or "application/octet-stream",
+       filesize=len(content),
        user_id=current_user.id,
     )
 

@@ -10,12 +10,18 @@ class ResumeService:
         self,
         db: Session,
         filename: str,
+        original_filename: str,
         filepath: str,
+        filetype: str,
+        filesize: int,
         user_id: int,
     ):
         resume = Resume(
             filename=filename,
+            original_filename=original_filename,
             filepath=filepath,
+            filetype=filetype,
+            filesize=filesize,
             user_id=user_id,
         )
 
