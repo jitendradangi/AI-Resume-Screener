@@ -19,6 +19,9 @@ class ResumeService:
             user_id=user_id,
         )
 
+        from app.services.resume_processing_service import ResumeProcessingService
+        ResumeProcessingService.process(resume)
+
         db.add(resume)
         db.commit()
         db.refresh(resume)

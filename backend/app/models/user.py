@@ -1,6 +1,10 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+import uuid
+from sqlalchemy.dialects.mysql import CHAR
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
 from sqlalchemy.sql import func
+from datetime import datetime, UTC
 from sqlalchemy.orm import relationship
+from app.models.enums import UserRole
 
 from app.database.base import Base
 
@@ -9,6 +13,14 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
+
+    public_id = Column(
+       CHAR(36),
+       default=lambda: str(uuid.uuid4()),
+       unique=True,
+       nullable=False,
+       index=True,
+    )
 
     full_name = Column(String(100), nullable=False)
 
@@ -34,6 +46,11 @@ class User(Base):
     resumes = relationship(
         "Resume",
         back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    jobs = relationship(
+       "Job",
+        back_populates="creator",
         cascade="all, delete-orphan",
     )
 

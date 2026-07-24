@@ -60,7 +60,7 @@ function Register() {
             <input
               type="text"
               name="full_name"
-              placeholder="John Doe"
+              placeholder="Full Name"
               value={formData.full_name}
               onChange={handleChange}
               className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-slate-900 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
