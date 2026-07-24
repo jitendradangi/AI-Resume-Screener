@@ -13,6 +13,15 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from app.database.base import Base
+from sqlalchemy import UniqueConstraint
+
+__table_args__ = (
+    UniqueConstraint(
+        "resume_id",
+        "job_id",
+        name="uq_resume_job_match",
+    ),
+)
 
 
 class JobMatch(Base):
