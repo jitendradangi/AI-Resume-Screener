@@ -19,16 +19,7 @@ class UserRepository(BaseRepository[User]):
             .first()
         )
 
-    def get_by_username(
-        self,
-        db: Session,
-        username: str,
-    ) -> User | None:
-        return (
-            db.query(self.model)
-            .filter(self.model.username == username)
-            .first()
-    )
+
 
     def email_exists(
         self,
@@ -42,17 +33,7 @@ class UserRepository(BaseRepository[User]):
             is not None
         )
 
-    def username_exists(
-        self,
-        db: Session,
-        username: str,
-    ) -> bool:
-        return (
-            db.query(User)
-            .filter(User.username == username)
-            .first()
-            is not None
-        )
+
 
 
 user_repository = UserRepository()

@@ -12,8 +12,8 @@ from app.models.job import Job
 from app.models.job_match import JobMatch
 from app.models.ats_report import ATSReport
 
-from app.routers import auth, resume as resume_router
-from app.core.dependencies import get_current_user
+from app.routers import auth, resume as resume_router, jobs, ats, job_match
+from app.dependencies import get_current_user
 
 Base.metadata.create_all(bind=engine)
 
@@ -29,6 +29,9 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(resume_router.router)
+app.include_router(jobs.router)
+app.include_router(ats.router)
+app.include_router(job_match.router)
 
 
 @app.get("/")

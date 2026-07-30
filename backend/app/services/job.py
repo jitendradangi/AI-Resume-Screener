@@ -15,14 +15,20 @@ class JobService(BaseService):
         creator_public_id: str,
         **job_data,
     ) -> Job:
-
-        creator = user_repository.get_by_public_id(
-            self.db,
-            creator_public_id,
-        )
-
+        creator = user_repository.get_by_public_id(self.db, creator_public_id)
         if not creator:
             raise ValueError("Creator not found.")
+
+        salary = job_data.pop("salary", None)
+        if salary:
+            if isinstance(salary, dict):
+                job_data["salary_min"] = salary.get("min")
+                job_data["salary_max"] = salary.get("max")
+                job_data["salary_currency"] = salary.get("currency", "INR")
+            else:
+                job_data["salary_min"] = salary.min
+                job_data["salary_max"] = salary.max
+                job_data["salary_currency"] = salary.currency or "INR"
 
         return job_repository.create(
             self.db,
@@ -45,14 +51,20 @@ class JobService(BaseService):
         public_id: str,
         **job_data,
     ) -> Job:
-
-        job = job_repository.get_by_public_id(
-            self.db,
-            public_id,
-        )
-
+        job = job_repository.get_by_public_id(self.db, public_id)
         if not job:
             raise ValueError("Job not found.")
+
+        salary = job_data.pop("salary", None)
+        if salary is not None:
+            if isinstance(salary, dict):
+                job_data["salary_min"] = salary.get("min")
+                job_data["salary_max"] = salary.get("max")
+                job_data["salary_currency"] = salary.get("currency", "INR")
+            else:
+                job_data["salary_min"] = salary.min
+                job_data["salary_max"] = salary.max
+                job_data["salary_currency"] = salary.currency or "INR"
 
         return job_repository.update(
             self.db,

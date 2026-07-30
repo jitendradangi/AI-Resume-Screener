@@ -12,19 +12,16 @@ class ResumeService(BaseService):
     def __init__(self, db: Session):
         super().__init__(db)
 
-    def upload_resume(
+    def create_resume(
         self,
         user_public_id: str,
         filename: str,
+        original_filename: str,
         filepath: str,
-        file_type: str,
+        filetype: str,
+        filesize: int,
     ) -> Resume:
-
-        user = user_repository.get_by_public_id(
-            self.db,
-            user_public_id,
-        )
-
+        user = user_repository.get_by_public_id(self.db, user_public_id)
         if not user:
             raise ValueError("User not found.")
 
@@ -32,9 +29,23 @@ class ResumeService(BaseService):
             self.db,
             user_id=user.id,
             filename=filename,
+            original_filename=original_filename,
             filepath=filepath,
-            file_type=file_type,
+            filetype=filetype,
+            filesize=filesize,
         )
+
+    def delete_resume(
+        self,
+        resume_id: int,
+        user_id: int,
+    ) -> None:
+        resume = resume_repository.get_by_id(self.db, resume_id)
+        if not resume:
+            raise ValueError("Resume not found.")
+        if resume.user_id != user_id:
+            raise ValueError("Unauthorized to delete this resume.")
+        resume_repository.delete(self.db, resume)
 
     def get_resume(
         self,

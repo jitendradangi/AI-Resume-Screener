@@ -17,31 +17,25 @@ class JobMatchService(BaseService):
         job_public_id: str,
         **match_data,
     ) -> JobMatch:
-
-        resume = resume_repository.get_by_public_id(
-            self.db,
-            resume_public_id,
-        )
-
+        resume = resume_repository.get_by_public_id(self.db, resume_public_id)
         if not resume:
             raise ValueError("Resume not found.")
 
-        job = job_repository.get_by_public_id(
-            self.db,
-            job_public_id,
-        )
-
+        job = job_repository.get_by_public_id(self.db, job_public_id)
         if not job:
             raise ValueError("Job not found.")
 
-        if job_match_repository.match_exists(
-            self.db,
-            resume.id,
-            job.id,
-        ):
-            raise ValueError(
-                "Match already exists."
-            )
+        if job_match_repository.match_exists(self.db, resume.id, job.id):
+            raise ValueError("Match already exists.")
+
+        skills = match_data.pop("skills", None)
+        if skills:
+            if isinstance(skills, dict):
+                match_data["matched_skills"] = skills.get("matched", [])
+                match_data["missing_skills"] = skills.get("missing", [])
+            else:
+                match_data["matched_skills"] = skills.matched
+                match_data["missing_skills"] = skills.missing
 
         return job_match_repository.create(
             self.db,

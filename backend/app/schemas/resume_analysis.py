@@ -1,4 +1,4 @@
-from pydantic import ConfigDict
+from pydantic import ConfigDict, model_validator
 
 from app.schemas.common import BaseResponseSchema, BaseSchema
 
@@ -76,3 +76,27 @@ class ResumeAnalysisResponse(
     resume_public_id: str
 
     model_config = ConfigDict(from_attributes=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def resolve_analysis_fields(cls, data: any) -> any:
+        if isinstance(data, dict):
+            return data
+            
+        resume_public_id_str = ""
+        if hasattr(data, "resume") and data.resume:
+            resume_public_id_str = str(data.resume.public_id)
+            
+        return {
+            "public_id": data.public_id,
+            "created_at": data.created_at,
+            "updated_at": data.updated_at,
+            "summary": data.summary,
+            "skills": data.skills or [],
+            "education": data.education or [],
+            "experience": data.experience or [],
+            "projects": data.projects or [],
+            "certifications": data.certifications or [],
+            "languages": data.languages or [],
+            "resume_public_id": resume_public_id_str,
+        }

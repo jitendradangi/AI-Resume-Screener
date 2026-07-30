@@ -1,12 +1,13 @@
 from sqlalchemy.orm import Session
 
+from app.core.security import (
+    hash_password,
+    verify_password,
+    create_access_token,
+)
 from app.models.user import User
 from app.repositories.user import user_repository
 from app.services.base import BaseService
-from app.utils.security import (
-    hash_password,
-    verify_password,
-)
 
 
 class UserService(BaseService):
@@ -15,7 +16,7 @@ class UserService(BaseService):
 
     def register_user(
         self,
-        username: str,
+        full_name: str,
         email: str,
         password: str,
     ) -> User:
@@ -23,24 +24,20 @@ class UserService(BaseService):
         if user_repository.email_exists(self.db, email):
             raise ValueError("Email already registered.")
 
-        if user_repository.username_exists(self.db, username):
-            raise ValueError("Username already exists.")
-
         hashed_password = hash_password(password)
 
         return user_repository.create(
             self.db,
-            username=username,
+            full_name=full_name,
             email=email,
-            hashed_password=hashed_password,
+            password_hash=hashed_password,
         )
 
     def authenticate_user(
         self,
         email: str,
         password: str,
-    ) -> User | None:
-
+    ):
         user = user_repository.get_by_email(
             self.db,
             email,
@@ -51,11 +48,21 @@ class UserService(BaseService):
 
         if not verify_password(
             password,
-            user.hashed_password,
+            user.password_hash,
         ):
             return None
 
-        return user
+        access_token = create_access_token(
+            {
+                "sub": user.public_id,
+            }
+        )
+
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": user,
+        }
 
     def get_user(
         self,
@@ -74,6 +81,3 @@ class UserService(BaseService):
             self.db,
             email,
         )
-
-
-user_service = UserService

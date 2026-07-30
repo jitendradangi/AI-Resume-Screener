@@ -28,7 +28,7 @@ class User(Base):
 
     password_hash = Column(String(255), nullable=False)
 
-    role = Column(String(20), default="recruiter")
+    role = Column(Enum(UserRole), nullable=False, default=UserRole.USER,)
 
     is_active = Column(Boolean, default=True)
 
