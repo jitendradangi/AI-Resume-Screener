@@ -57,6 +57,15 @@ class ResumeAnalysis(Base):
 
     languages = Column(JSON, nullable=True)
 
+    # AI generated feedback
+    strengths = Column(JSON, nullable=True)
+
+    weaknesses = Column(JSON, nullable=True)
+
+    missing_skills = Column(JSON, nullable=True)
+
+    recommendations = Column(JSON, nullable=True)
+
     created_at = Column(
         DateTime,
         default=datetime.now(UTC),
