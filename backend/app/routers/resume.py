@@ -2,13 +2,21 @@ from pathlib import Path
 import uuid
 from typing import List
 
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.ai.resume_analyzer import (
+    AIAnalysisError,
+    AIConfigurationError,
+    AIResponseError,
+    AIServiceError,
+)
 from app.dependencies import get_db, get_current_user
 from app.models.user import User
 from app.schemas.resume import ResumeResponse
+from app.schemas.resume_analysis import ResumeAnalysisResponse
 from app.services.resume import ResumeService
+from app.services.resume_analysis import ResumeAnalysisService
 
 router = APIRouter(
     prefix="/resume",
@@ -85,6 +93,77 @@ def get_my_resumes(
 ):
     service = ResumeService(db)
     return service.get_user_resumes(user_public_id=str(current_user.public_id))
+
+@router.post(
+    "/{resume_public_id}/analyze",
+    response_model=ResumeAnalysisResponse,
+)
+def analyze_resume_api(
+    resume_public_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    service = ResumeAnalysisService(db)
+
+    try:
+        return service.run_ai_analysis(
+            resume_public_id=resume_public_id,
+            user_id=current_user.id,
+        )
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+    except AIConfigurationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e),
+        )
+    except (AIServiceError, AIResponseError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(e),
+        )
+    except AIAnalysisError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+
+
+@router.get(
+    "/{resume_public_id}/analysis",
+    response_model=ResumeAnalysisResponse,
+)
+def get_resume_analysis_api(
+    resume_public_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    service = ResumeAnalysisService(db)
+
+    try:
+        analysis = service.get_analysis(resume_public_id)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+
+    if not analysis:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume analysis not found",
+        )
+
+    return analysis
+
 
 @router.delete("/{resume_id}")
 def delete_resume_api(

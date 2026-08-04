@@ -68,6 +68,14 @@ class ResumeAnalysisBase(BaseSchema):
 
     languages: list[LanguageSchema] | None = None
 
+    strengths: list[str] | None = None
+
+    weaknesses: list[str] | None = None
+
+    missing_skills: list[str] | None = None
+
+    recommendations: list[str] | None = None
+
 
 class ResumeAnalysisResponse(
     BaseResponseSchema,
@@ -98,5 +106,9 @@ class ResumeAnalysisResponse(
             "projects": data.projects or [],
             "certifications": data.certifications or [],
             "languages": data.languages or [],
+            "strengths": data.strengths or [],
+            "weaknesses": data.weaknesses or [],
+            "missing_skills": data.missing_skills or [],
+            "recommendations": data.recommendations or [],
             "resume_public_id": resume_public_id_str,
         }
