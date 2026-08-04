@@ -19,6 +19,17 @@ class ATSScoreRepository(BaseRepository[ATSScore]):
             .first()
         )
 
+    def get_by_public_id(
+        self,
+        db: Session,
+        public_id: str,
+    ) -> ATSScore | None:
+        return (
+            db.query(self.model)
+            .filter(self.model.public_id == public_id)
+            .first()
+        )
+
     def score_exists(
         self,
         db: Session,
@@ -64,8 +75,12 @@ class ATSScoreRepository(BaseRepository[ATSScore]):
         experience_score: float,
         projects_score: float,
         format_score: float,
+        section_score: float,
         keyword_score: float,
         missing_keywords: list | None = None,
+        strengths: list | None = None,
+        weaknesses: list | None = None,
+        recommendations: list | None = None,
     ) -> ATSScore:
         return self.create(
             db,
@@ -76,8 +91,12 @@ class ATSScoreRepository(BaseRepository[ATSScore]):
             experience_score=experience_score,
             projects_score=projects_score,
             format_score=format_score,
+            section_score=section_score,
             keyword_score=keyword_score,
             missing_keywords=missing_keywords,
+            strengths=strengths,
+            weaknesses=weaknesses,
+            recommendations=recommendations,
         )
 
     def update_score(
@@ -90,8 +109,12 @@ class ATSScoreRepository(BaseRepository[ATSScore]):
         experience_score: float | None = None,
         projects_score: float | None = None,
         format_score: float | None = None,
+        section_score: float | None = None,
         keyword_score: float | None = None,
         missing_keywords: list | None = None,
+        strengths: list | None = None,
+        weaknesses: list | None = None,
+        recommendations: list | None = None,
     ) -> ATSScore:
         update_kwargs = {}
         if overall_score is not None:
@@ -106,10 +129,18 @@ class ATSScoreRepository(BaseRepository[ATSScore]):
             update_kwargs["projects_score"] = projects_score
         if format_score is not None:
             update_kwargs["format_score"] = format_score
+        if section_score is not None:
+            update_kwargs["section_score"] = section_score
         if keyword_score is not None:
             update_kwargs["keyword_score"] = keyword_score
         if missing_keywords is not None:
             update_kwargs["missing_keywords"] = missing_keywords
+        if strengths is not None:
+            update_kwargs["strengths"] = strengths
+        if weaknesses is not None:
+            update_kwargs["weaknesses"] = weaknesses
+        if recommendations is not None:
+            update_kwargs["recommendations"] = recommendations
 
         return self.update(db, ats_score, **update_kwargs)
 

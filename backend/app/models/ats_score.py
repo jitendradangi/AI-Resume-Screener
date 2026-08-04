@@ -52,19 +52,29 @@ class ATSScore(Base):
 
     format_score = Column(Float, default=0)
 
+    section_score = Column(Float, default=0)
+
     keyword_score = Column(Float, default=0)
 
     missing_keywords = Column(JSON)
 
+    strengths = Column(JSON)
+
+    weaknesses = Column(JSON)
+
+    recommendations = Column(JSON)
+
     created_at = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
+        nullable=False,
     )
 
     updated_at = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
         onupdate=lambda: datetime.now(UTC),
+        nullable=False,
     )
 
     resume_analysis = relationship(

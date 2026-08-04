@@ -44,6 +44,12 @@ class ATSScoreCreateRequest(BaseModel):
     missing_keywords: list[str] | None = None
 
 
+class ATSScoreAutoRequest(BaseModel):
+    experience_score: float
+    projects_score: float
+    format_score: float
+
+
 @router.post("/upload", response_model=ResumeResponse)
 async def upload_resume(
     file: UploadFile = File(...),
@@ -432,6 +438,45 @@ def create_ats_score(
             format_score=score_data.format_score,
             keyword_score=score_data.keyword_score,
             missing_keywords=score_data.missing_keywords,
+        )
+        return score
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/{public_id}/ats-score/auto", response_model=ATSScoreResponse)
+def create_ats_score_auto(
+    public_id: str,
+    score_data: ATSScoreAutoRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Create an ATS score with automatic resume quality analysis.
+    
+    Automatically calculates skills, keyword, and education scores based on resume quality.
+    Experience, projects, and format scores are provided manually.
+    """
+    resume = resume_repository.get_by_public_id(db, public_id)
+    if not resume:
+        raise HTTPException(status_code=404, detail="Resume not found.")
+    if resume.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Unauthorized.")
+    
+    resume_analysis = resume_analysis_repository.get_by_resume(db, resume.id)
+    if not resume_analysis:
+        raise HTTPException(status_code=404, detail="Resume analysis not found. Please analyze the resume first.")
+    
+    service = ATSScoreService(db)
+    
+    try:
+        score = service.generate_score_auto(
+            resume_analysis_public_id=str(resume_analysis.public_id),
+            experience_score=score_data.experience_score,
+            projects_score=score_data.projects_score,
+            format_score=score_data.format_score,
         )
         return score
     except ValueError as e:

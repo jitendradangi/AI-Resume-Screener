@@ -14,8 +14,12 @@ class ATSScoreBase(BaseSchema):
     experience_score: float
     projects_score: float
     format_score: float
+    section_score: float
     keyword_score: float
     missing_keywords: list[str] | None = None
+    strengths: list[str] | None = None
+    weaknesses: list[str] | None = None
+    recommendations: list[str] | None = None
 
 
 # ----------------------------
@@ -51,14 +55,18 @@ class ATSScoreResponse(
         return {
             "public_id": data.public_id,
             "created_at": data.created_at,
-            "updated_at": data.updated_at,
+            "updated_at": getattr(data, "updated_at", data.created_at),
             "overall_score": data.overall_score,
             "skills_score": data.skills_score,
             "education_score": data.education_score,
             "experience_score": data.experience_score,
             "projects_score": data.projects_score,
             "format_score": data.format_score,
+            "section_score": data.section_score,
             "keyword_score": data.keyword_score,
             "missing_keywords": data.missing_keywords or [],
+            "strengths": data.strengths or [],
+            "weaknesses": data.weaknesses or [],
+            "recommendations": data.recommendations or [],
             "resume_analysis_public_id": resume_analysis_public_id_str,
         }
