@@ -1,14 +1,19 @@
 from docx import Document
 
-class DOCXParser:
 
+class DOCXParser:
     @staticmethod
     def extract_text(file_path: str) -> str:
-        document = Document(file_path)
+        try:
+            document = Document(file_path)
 
-        text = []
+            paragraphs = [
+                para.text.strip()
+                for para in document.paragraphs
+                if para.text.strip()
+            ]
 
-        for paragraph in document.paragraphs:
-            text.append(paragraph.text)
+            return "\n".join(paragraphs)
 
-        return "\n".join(text).strip()
+        except Exception as e:
+            raise ValueError(f"Unable to parse DOCX: {str(e)}")

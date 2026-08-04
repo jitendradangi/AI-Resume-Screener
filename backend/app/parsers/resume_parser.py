@@ -1,45 +1,23 @@
-import re
+from pathlib import Path
+
+from app.parsers.pdf_parser import PDFParser
+from app.parsers.docx_parser import DOCXParser
 
 
 class ResumeParser:
 
     @staticmethod
-    def parse(text: str):
+    def parse(file_path: str) -> str:
 
-        data = {
-            "name": None,
-            "email": None,
-            "phone": None,
-            "skills": [],
-            "education": [],
-            "experience": [],
-            "projects": [],
-            "certifications": [],
-            "languages": []
-        }
+        extension = Path(file_path).suffix.lower()
 
-        # Email
-        email = re.search(
-            r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}",
-            text,
-        )
+        if extension == ".pdf":
+            return PDFParser.extract_text(file_path)
 
-        if email:
-            data["email"] = email.group()
+        elif extension == ".docx":
+            return DOCXParser.extract_text(file_path)
 
-        # Phone
-        phone = re.search(
-            r"(\+91[- ]?)?[6-9]\d{9}",
-            text,
-        )
-
-        if phone:
-            data["phone"] = phone.group()
-
-        # Name (temporary logic)
-        lines = [line.strip() for line in text.split("\n") if line.strip()]
-
-        if lines:
-            data["name"] = lines[0]
-
-        return data
+        else:
+            raise ValueError(
+                f"Unsupported resume format: {extension}"
+            )

@@ -18,6 +18,13 @@ from app.database.base import Base
 class ResumeAnalysis(Base):
     __tablename__ = "resume_analysis"
 
+    ats_score = relationship(
+    "ATSScore",
+    back_populates="resume_analysis",
+    uselist=False,
+    cascade="all, delete-orphan",
+)
+
 
     id = Column(Integer, primary_key=True, index=True)
 
@@ -56,6 +63,9 @@ class ResumeAnalysis(Base):
     certifications = Column(JSON, nullable=True)
 
     languages = Column(JSON, nullable=True)
+
+    # Gemini AI analysis result (Step 6)
+    ai_analysis = Column(JSON, nullable=True)
 
     created_at = Column(
         DateTime,

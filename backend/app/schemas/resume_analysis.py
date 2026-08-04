@@ -1,3 +1,4 @@
+from typing import Any
 from pydantic import ConfigDict, model_validator
 
 from app.schemas.common import BaseResponseSchema, BaseSchema
@@ -100,3 +101,60 @@ class ResumeAnalysisResponse(
             "languages": data.languages or [],
             "resume_public_id": resume_public_id_str,
         }
+
+
+# ---------------------------------------------------------------------------
+# Step 7 – AI Analysis response schema
+# ---------------------------------------------------------------------------
+
+class ScoreBreakdownSchema(BaseSchema):
+    content_quality: int | None = None
+    skills_relevance: int | None = None
+    experience_depth: int | None = None
+    formatting_clarity: int | None = None
+
+
+class AIAnalysisResponse(BaseSchema):
+    """Schema for the Gemini AI analysis result returned by POST /{id}/ai-analysis."""
+
+    analysis_public_id: str
+    resume_public_id: str
+
+    overall_score: int | None = None
+    score_breakdown: ScoreBreakdownSchema | None = None
+    experience_level: str | None = None
+    summary: str | None = None
+
+    strengths: list[str] = []
+    weaknesses: list[str] = []
+    missing_skills: list[str] = []
+    recommendations: list[str] = []
+    keyword_suggestions: list[str] = []
+    top_skills: list[str] = []
+
+    # Raw Gemini dict — useful for debugging or future field additions
+    raw: dict[str, Any] = {}
+
+    @classmethod
+    def from_service_result(cls, result: dict) -> "AIAnalysisResponse":
+        """Build the response from the dict returned by ResumeService.run_ai_analysis()."""
+        ai = result.get("ai_analysis", {})
+        breakdown_raw = ai.get("score_breakdown")
+        breakdown = (
+            ScoreBreakdownSchema(**breakdown_raw) if isinstance(breakdown_raw, dict) else None
+        )
+        return cls(
+            analysis_public_id=result["analysis_public_id"],
+            resume_public_id=result["resume_public_id"],
+            overall_score=ai.get("overall_score"),
+            score_breakdown=breakdown,
+            experience_level=ai.get("experience_level"),
+            summary=ai.get("summary"),
+            strengths=ai.get("strengths", []),
+            weaknesses=ai.get("weaknesses", []),
+            missing_skills=ai.get("missing_skills", []),
+            recommendations=ai.get("recommendations", []),
+            keyword_suggestions=ai.get("keyword_suggestions", []),
+            top_skills=ai.get("top_skills", []),
+            raw=ai,
+        )

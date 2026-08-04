@@ -42,7 +42,7 @@ class Resume(Base):
 
     filepath = Column(String(500), nullable=False)
 
-    filetype = Column(String(20), nullable=False)
+    filetype = Column(String(100), nullable=False)
 
     filesize = Column(Integer, nullable=False)
 
