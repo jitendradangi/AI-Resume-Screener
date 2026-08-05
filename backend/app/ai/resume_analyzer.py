@@ -11,14 +11,16 @@ import re
 import warnings
 
 # Suppress the FutureWarning emitted by google-generativeai 0.8.x
-# until the project upgrades to google-genai
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", FutureWarning)
-    import google.generativeai as genai
+    try:
+        import google.generativeai as genai
+        from app.core.config import GEMINI_API_KEY
+        genai.configure(api_key=GEMINI_API_KEY)
+        _GEMINI_AVAILABLE = True
+    except ImportError:
+        _GEMINI_AVAILABLE = False
 
-from app.core.config import GEMINI_API_KEY
-
-genai.configure(api_key=GEMINI_API_KEY)
 _MODEL = "gemini-2.5-flash"
 
 
@@ -115,6 +117,9 @@ class ResumeAnalyzer:
             ValueError: If Gemini returns an invalid / unparseable response.
             RuntimeError: If the Gemini API call itself fails.
         """
+        if not _GEMINI_AVAILABLE:
+            raise RuntimeError("Gemini API is not available. Please install google-generativeai package.")
+
         prompt = ANALYSIS_PROMPT_TEMPLATE.format(
             resume_text=resume_text,
             extracted_data=json.dumps(extracted_data, indent=2, ensure_ascii=False),
