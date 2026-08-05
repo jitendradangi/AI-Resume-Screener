@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from app.models.enums import JobStatus
 from app.models.job import Job
+from app.models.enums import JobStatus
 from app.repositories.base import BaseRepository
 
 
@@ -9,13 +9,14 @@ class JobRepository(BaseRepository[Job]):
     def __init__(self):
         super().__init__(Job)
 
-    def get_active_jobs(
+    def get_by_user(
         self,
         db: Session,
+        user_id: int,
     ) -> list[Job]:
         return (
             db.query(self.model)
-            .filter(self.model.is_active == True)
+            .filter(self.model.user_id == user_id)
             .all()
         )
 
@@ -30,58 +31,46 @@ class JobRepository(BaseRepository[Job]):
             .all()
         )
 
-    def get_by_company(
+    def get_open_jobs(
         self,
         db: Session,
-        company: str,
     ) -> list[Job]:
         return (
             db.query(self.model)
-            .filter(self.model.company == company)
-            .all()
-        )
-
-    def get_by_location(
-        self,
-        db: Session,
-        location: str,
-    ) -> list[Job]:
-        return (
-            db.query(self.model)
-            .filter(self.model.location == location)
-            .all()
-        )
-
-    def get_by_creator(
-        self,
-        db: Session,
-        user_id: int,
-    ) -> list[Job]:
-        return (
-            db.query(self.model)
-            .filter(self.model.created_by == user_id)
+            .filter(self.model.status == JobStatus.OPEN)
             .all()
         )
 
     def search_by_title(
         self,
         db: Session,
-        keyword: str,
+        title: str,
     ) -> list[Job]:
         return (
             db.query(self.model)
-            .filter(self.model.title.ilike(f"%{keyword}%"))
+            .filter(self.model.title.ilike(f"%{title}%"))
             .all()
         )
 
-    def get_by_skill(
+    def search_by_company(
         self,
         db: Session,
-        skill: str,
+        company: str,
     ) -> list[Job]:
         return (
             db.query(self.model)
-            .filter(self.model.required_skills.contains([skill]))
+            .filter(self.model.company.ilike(f"%{company}%"))
+            .all()
+        )
+
+    def search_by_location(
+        self,
+        db: Session,
+        location: str,
+    ) -> list[Job]:
+        return (
+            db.query(self.model)
+            .filter(self.model.location.ilike(f"%{location}%"))
             .all()
         )
 

@@ -1,88 +1,59 @@
 from datetime import datetime
 
-from pydantic import ConfigDict, Field, model_validator
+from pydantic import ConfigDict, model_validator
 
 from app.models.enums import EmploymentType, JobStatus
 from app.schemas.common import BaseResponseSchema, BaseSchema
 
 
-# ----------------------------
-# Nested Schemas
-# ----------------------------
-
-class SalarySchema(BaseSchema):
-    min: int | None = None
-    max: int | None = None
-    currency: str = "INR"
-
-
-# ----------------------------
-# Base Schema
-# ----------------------------
-
 class JobBase(BaseSchema):
-    title: str = Field(..., min_length=3, max_length=255)
+    """Common job fields."""
 
-    company: str = Field(..., min_length=2, max_length=255)
-
+    title: str
+    company: str
     location: str | None = None
-
-    employment_type: EmploymentType = EmploymentType.FULL_TIME
-
-    experience_required: int | None = None
-
-    salary: SalarySchema | None = None
-
-    description: str
-
-    required_skills: list[str] = []
-
-    preferred_skills: list[str] = []
-
+    description: str | None = None
+    required_skills: list[str] | None = None
+    experience: str | None = None
     education: str | None = None
+    employment_type: EmploymentType | None = None
+    salary: str | None = None
+    status: JobStatus = JobStatus.DRAFT
 
-    deadline: datetime | None = None
-
-
-# ----------------------------
-# Create
-# ----------------------------
 
 class JobCreate(JobBase):
+    """Schema for creating a job."""
+
     pass
 
 
-# ----------------------------
-# Update
-# ----------------------------
-
 class JobUpdate(BaseSchema):
+    """Schema for updating a job."""
+
     title: str | None = None
     company: str | None = None
     location: str | None = None
-    employment_type: EmploymentType | None = None
-    experience_required: int | None = None
-    salary: SalarySchema | None = None
     description: str | None = None
     required_skills: list[str] | None = None
-    preferred_skills: list[str] | None = None
+    experience: str | None = None
     education: str | None = None
-    deadline: datetime | None = None
+    employment_type: EmploymentType | None = None
+    salary: str | None = None
     status: JobStatus | None = None
-    is_active: bool | None = None
 
-
-# ----------------------------
-# Response
-# ----------------------------
 
 class JobResponse(
     BaseResponseSchema,
     JobBase,
 ):
-    status: JobStatus
-    is_active: bool
-    created_by: str
+    """Job details returned to clients."""
+
+    user_public_id: str
+    parsed_required_skills: list[str] | None = None
+    parsed_required_experience: str | None = None
+    parsed_required_education: str | None = None
+    parsed_responsibilities: list[str] | None = None
+    parsed_preferred_skills: list[str] | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -91,19 +62,11 @@ class JobResponse(
     def resolve_job_fields(cls, data: any) -> any:
         if isinstance(data, dict):
             return data
-        
-        salary = {
-            "min": getattr(data, "salary_min", None),
-            "max": getattr(data, "salary_max", None),
-            "currency": getattr(data, "salary_currency", "INR")
-        }
-        
-        created_by_str = ""
-        if hasattr(data, "creator") and data.creator:
-            created_by_str = str(data.creator.public_id)
-        elif hasattr(data, "created_by"):
-            created_by_str = str(data.created_by)
-            
+
+        user_public_id_str = ""
+        if hasattr(data, "user") and data.user:
+            user_public_id_str = str(data.user.public_id)
+
         return {
             "public_id": data.public_id,
             "created_at": data.created_at,
@@ -111,15 +74,17 @@ class JobResponse(
             "title": data.title,
             "company": data.company,
             "location": data.location,
-            "employment_type": data.employment_type,
-            "experience_required": data.experience_required,
-            "salary": salary,
             "description": data.description,
             "required_skills": data.required_skills or [],
-            "preferred_skills": data.preferred_skills or [],
+            "experience": data.experience,
             "education": data.education,
-            "deadline": data.deadline,
+            "employment_type": data.employment_type,
+            "salary": data.salary,
             "status": data.status,
-            "is_active": data.is_active,
-            "created_by": created_by_str,
+            "user_public_id": user_public_id_str,
+            "parsed_required_skills": getattr(data, "parsed_required_skills", None),
+            "parsed_required_experience": getattr(data, "parsed_required_experience", None),
+            "parsed_required_education": getattr(data, "parsed_required_education", None),
+            "parsed_responsibilities": getattr(data, "parsed_responsibilities", None),
+            "parsed_preferred_skills": getattr(data, "parsed_preferred_skills", None),
         }

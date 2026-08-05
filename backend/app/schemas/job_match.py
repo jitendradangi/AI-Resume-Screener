@@ -75,3 +75,19 @@ class JobMatchResponse(
             "resume_public_id": resume_public_id_str,
             "job_public_id": job_public_id_str,
         }
+
+
+# ----------------------------
+# Recommendation Schema
+# ----------------------------
+
+class JobRecommendation(BaseSchema):
+    job_public_id: str
+    title: str
+    company: str
+    location: str | None = None
+    overall_match: float
+    match_level: str
+    component_scores: dict
+    matched_skills: list[str]
+    missing_skills: list[str]

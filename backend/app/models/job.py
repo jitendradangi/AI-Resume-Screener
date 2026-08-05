@@ -3,7 +3,6 @@ from sqlalchemy.dialects.mysql import CHAR
 from datetime import datetime, UTC
 
 from sqlalchemy import (
-    Boolean,
     Column,
     DateTime,
     Enum,
@@ -22,15 +21,20 @@ from app.models.enums import EmploymentType, JobStatus
 class Job(Base):
     __tablename__ = "jobs"
 
-
     id = Column(Integer, primary_key=True, index=True)
 
     public_id = Column(
-       CHAR(36),
-       default=lambda: str(uuid.uuid4()),
-       unique=True,
-       nullable=False,
-       index=True,
+        CHAR(36),
+        default=lambda: str(uuid.uuid4()),
+        unique=True,
+        nullable=False,
+        index=True,
+    )
+
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
     )
 
     title = Column(String(255), nullable=False)
@@ -39,57 +43,53 @@ class Job(Base):
 
     location = Column(String(255), nullable=True)
 
-    employment_type = Column(
-        Enum(EmploymentType),
-        nullable=False,
-        default=EmploymentType.FULL_TIME,
-    )
-
-    experience_required = Column(Integer, nullable=True)
-
-    salary_min = Column(Integer, nullable=True)
-    salary_max = Column(Integer, nullable=True)
-    salary_currency = Column(String(10),nullable=False, default="INR")
-
-    description = Column(Text, nullable=False)
+    description = Column(Text, nullable=True)
 
     required_skills = Column(JSON, nullable=True)
 
-    preferred_skills = Column(JSON, nullable=True)
+    experience = Column(String(100), nullable=True)
 
-    education = Column(String(255), nullable=True)
+    education = Column(String(100), nullable=True)
 
-    deadline = Column(DateTime(timezone=True), nullable=True)
+    # Parsed job description data
+    parsed_required_skills = Column(JSON, nullable=True)
 
-    is_active = Column(Boolean, default=True)
+    parsed_required_experience = Column(String(255), nullable=True)
+
+    parsed_required_education = Column(String(255), nullable=True)
+
+    parsed_responsibilities = Column(JSON, nullable=True)
+
+    parsed_preferred_skills = Column(JSON, nullable=True)
+
+    employment_type = Column(
+        Enum(EmploymentType),
+        nullable=True,
+    )
+
+    salary = Column(String(100), nullable=True)
 
     status = Column(
         Enum(JobStatus),
-        default=JobStatus.OPEN,
-        nullable=False,
-    )
-
-    created_by = Column(
-        Integer,
-        ForeignKey("users.id", ondelete="CASCADE"),
+        default=JobStatus.DRAFT,
         nullable=False,
     )
 
     created_at = Column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(UTC),
+        DateTime,
+        default=datetime.now(UTC),
         nullable=False,
     )
 
     updated_at = Column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(UTC),
-        onupdate=lambda: datetime.now(UTC),
+        DateTime,
+        default=datetime.now(UTC),
+        onupdate=datetime.now(UTC),
         nullable=False,
     )
 
     # Relationships
-    creator = relationship(
+    user = relationship(
         "User",
         back_populates="jobs",
     )

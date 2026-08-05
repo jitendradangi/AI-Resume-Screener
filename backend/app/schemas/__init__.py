@@ -45,7 +45,6 @@ from .ats_report import (
 )
 
 from .job import (
-    SalarySchema,
     JobBase,
     JobCreate,
     JobUpdate,

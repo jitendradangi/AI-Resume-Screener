@@ -50,7 +50,7 @@ class User(Base):
     )
     jobs = relationship(
        "Job",
-        back_populates="creator",
+        back_populates="user",
         cascade="all, delete-orphan",
     )
 

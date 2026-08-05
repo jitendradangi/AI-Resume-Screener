@@ -11,6 +11,7 @@ from app.models.resume_analysis import ResumeAnalysis
 from app.models.job import Job
 from app.models.job_match import JobMatch
 from app.models.ats_report import ATSReport
+from app.models.ats_score import ATSScore
 
 from app.routers import auth, resume as resume_router, jobs, ats, job_match
 from app.dependencies import get_current_user
