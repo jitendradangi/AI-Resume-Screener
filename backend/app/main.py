@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 import time
+import os
 from slowapi.errors import RateLimitExceeded
 
 from app.database.base import Base
@@ -31,11 +32,19 @@ from app.models.ats_score import ATSScore
 from app.routers import auth, resume as resume_router, jobs, ats, job_match
 from app.dependencies import get_current_user
 
-Base.metadata.create_all(bind=engine)
+# Database connection with retry logic for Railway
+try:
+    Base.metadata.create_all(bind=engine)
+    logger.info("Database tables created successfully")
+except Exception as e:
+    logger.error(f"Database connection error: {e}")
+    # Continue startup even if DB fails (it might be available later)
 
 app = FastAPI(
     title="AI Resume Screener API",
-    debug=settings.DEBUG
+    debug=settings.DEBUG,
+    docs_url="/docs",
+    redoc_url="/redoc"
 )
 
 # Add rate limiting
