@@ -6,7 +6,7 @@ import os
 DATABASE_URL = settings.DATABASE_URL
 
 # For Railway deployment, handle potential connection pool issues
-print(f"Database URL: {DATABASE_URL}")
+
 
 # Configure engine with connection pooling for production
 engine = create_engine(
