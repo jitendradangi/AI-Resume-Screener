@@ -16,8 +16,8 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore", FutureWarning)
     try:
         import google.generativeai as genai
-        from app.core.config import GEMINI_API_KEY
-        genai.configure(api_key=GEMINI_API_KEY)
+        from app.core.config import settings
+        genai.configure(api_key=settings.GEMINI_API_KEY)
         _MODEL = "gemini-2.5-flash"
         _GEMINI_AVAILABLE = True
     except ImportError:

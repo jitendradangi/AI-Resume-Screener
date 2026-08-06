@@ -1,11 +1,15 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db, get_current_user
 from app.models.user import User
 from app.schemas.job_match import JobMatchCreate, JobMatchResponse, JobRecommendation
 from app.services.job_match import JobMatchService
+from app.exceptions import NotFoundException, BadRequestException
+from app.core.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 router = APIRouter(
     prefix="/matches",
@@ -38,15 +42,11 @@ def create_match_api(
             **match_in.model_dump(exclude={"resume_public_id", "job_public_id"})
         )
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        logger.warning(f"Bad request: {e}")
+        raise BadRequestException(str(e))
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create match: {str(e)}"
-        )
+        logger.error(f"Failed to create match: {e}")
+        raise
 
 @router.get(
     "/resume/{resume_public_id}",

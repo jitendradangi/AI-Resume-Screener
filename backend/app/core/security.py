@@ -4,7 +4,7 @@ from typing import Any
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from app.core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from app.core.config import settings
 
 # Password hashing configuration
 pwd_context = CryptContext(
@@ -41,7 +41,7 @@ def create_access_token(
         + (
             expires_delta
             or timedelta(
-                minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
             )
         )
     )
@@ -50,8 +50,8 @@ def create_access_token(
 
     return jwt.encode(
         to_encode,
-        SECRET_KEY,
-        algorithm=ALGORITHM,
+        settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM,
     )
 
 def verify_access_token(
@@ -64,8 +64,8 @@ def verify_access_token(
     try:
         payload = jwt.decode(
             token,
-            SECRET_KEY,
-            algorithms=[ALGORITHM],
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
         )
 
         public_id = payload.get("sub")

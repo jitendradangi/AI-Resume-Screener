@@ -1,0 +1,46 @@
+
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: ai-resume-mysql
+
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ai_resume_screener
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+
+    container_name: ai-resume-backend
+
+    depends_on:
+      - mysql
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - .env.development
+
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:${MYSQL_ROOT_PASSWORD}@mysql:3306/ai_resume_screener
+
+    restart: always
+
+volumes:
+  mysql_data:
