@@ -100,7 +100,7 @@ services:
     container_name: ai-resume-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: Jitu@2003
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ai_resume_screener
     ports:
       - "3307:3306"
