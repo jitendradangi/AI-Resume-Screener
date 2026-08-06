@@ -33,6 +33,12 @@ env/
 .env.development
 .env.testing
 .env.production
+backend/.env
+backend/.env.local
+backend/.env.docker
+backend/.env.development
+backend/.env.testing
+backend/.env.production
 
 # Logs
 logs/
