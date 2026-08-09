@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- ATS Score page UI with comprehensive analysis display
+- Color-coded score indicators (green/yellow/red)
+- Progress bars for score breakdown visualization
+- Strengths, improvements, and missing skills sections
+- AI recommendations section with actionable insights
+- Navigation flow from resume details to ATS score page
+- Groq AI integration as primary AI provider
+- Support for multiple AI providers (Gemini, Groq)
 - Professional README.md with comprehensive documentation
 - CONTRIBUTING.md with contribution guidelines
 - LICENSE file (MIT License)
@@ -20,6 +28,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Environment-based configuration (development, testing, production)
 - Docker containerization with health checks
 - Security improvements with environment variable management
+
+### Changed
+- Migrated from Google Gemini AI to Groq AI for improved performance
+- Updated requirements.txt to use groq package instead of google-genai
+- Replaced Gemini API calls with Groq API in resume_analyzer.py
+- Replaced Gemini API calls with Groq API in semantic_matcher.py
+- Updated configuration to support GROQ_API_KEY environment variable
+- Updated Docker configuration to use environment-specific files
+- Refactored security module to use centralized configuration
+- Updated logging to support environment-based log levels
+- Improved CORS configuration with environment variable support
+- Enhanced rate limiting with configurable limits per environment
 
 ### Changed
 - Updated Docker configuration to use environment-specific files
@@ -45,7 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release of AI Resume Analyzer & Job Matching Platform
 - User authentication with JWT tokens
 - Resume upload and parsing (PDF/DOCX)
-- AI-powered resume analysis with Google Gemini
+- AI-powered resume analysis with Groq AI
 - ATS scoring engine with comprehensive analysis
 - Job matching algorithms (skills, experience, semantic)
 - Job recommendation engine

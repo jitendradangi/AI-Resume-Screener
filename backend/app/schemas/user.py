@@ -9,6 +9,10 @@ class UserBase(BaseSchema):
 
     full_name: str = Field(..., min_length=2, max_length=100)
     email: EmailStr
+    phone: str | None = Field(default=None, max_length=20)
+    location: str | None = Field(default=None, max_length=100)
+    professional_title: str | None = Field(default=None, max_length=100)
+    skills: str | None = Field(default=None, max_length=500)
 
 
 class UserCreate(UserBase):
@@ -37,6 +41,10 @@ class UserUpdate(BaseSchema):
     full_name: str | None = Field(default=None, min_length=2, max_length=100)
     email: EmailStr | None = None
     password: str | None = Field(default=None, min_length=8, max_length=128)
+    phone: str | None = Field(default=None, max_length=20)
+    location: str | None = Field(default=None, max_length=100)
+    professional_title: str | None = Field(default=None, max_length=100)
+    skills: str | None = Field(default=None, max_length=500)
 
 
 class UserResponse(BaseResponseSchema):
@@ -46,5 +54,9 @@ class UserResponse(BaseResponseSchema):
     email: EmailStr
     role: UserRole
     is_active: bool
+    phone: str | None = None
+    location: str | None = None
+    professional_title: str | None = None
+    skills: str | None = None
 
     model_config = ConfigDict(from_attributes=True)

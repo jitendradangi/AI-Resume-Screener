@@ -48,7 +48,7 @@ function MyResumes() {
     fetchResumes();
   }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (public_id) => {
     const confirmDelete = window.confirm(
       "Delete this resume?"
     );
@@ -56,12 +56,13 @@ function MyResumes() {
     if (!confirmDelete) return;
 
     try {
-      await deleteResume(id);
+      await deleteResume(public_id);
 
       setResumes((prev) =>
-        prev.filter((resume) => resume.id !== id)
+        prev.filter((resume) => resume.public_id !== public_id)
       );
     } catch (err) {
+      console.error(err);
       alert("Delete failed.");
     }
   };
@@ -107,7 +108,7 @@ function MyResumes() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <button
-                        onClick={() => handleDelete(resume.id)}
+                        onClick={() => handleDelete(resume.public_id)}
                         className="text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-900/30 px-3 py-1.5 rounded-lg transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                       >
                         Delete

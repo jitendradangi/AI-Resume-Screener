@@ -81,3 +81,25 @@ class UserService(BaseService):
             self.db,
             email,
         )
+
+    def update_user(
+        self,
+        public_id: str,
+        **kwargs
+    ) -> User:
+        """Update user profile."""
+        user = user_repository.get_by_public_id(self.db, public_id)
+        if not user:
+            raise ValueError("User not found")
+        
+        # Check if email is being updated and if it already exists
+        if "email" in kwargs and kwargs["email"] != user.email:
+            if user_repository.email_exists(self.db, kwargs["email"]):
+                raise ValueError("Email already registered")
+        
+        # Hash password if provided
+        if "password" in kwargs and kwargs["password"]:
+            kwargs["password_hash"] = hash_password(kwargs["password"])
+            del kwargs["password"]
+        
+        return user_repository.update(self.db, user, **kwargs)

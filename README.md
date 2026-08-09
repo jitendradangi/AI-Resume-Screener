@@ -377,8 +377,8 @@ SECRET_KEY=your-secret-key-here
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
-# Gemini AI Configuration
-GEMINI_API_KEY=your-gemini-api-key-here
+# Groq AI Configuration
+GROQ_API_KEY=your-groq-api-key-here
 
 # CORS Configuration
 CORS_ORIGINS=http://localhost:3000,http://localhost:8000

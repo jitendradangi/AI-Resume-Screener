@@ -2,8 +2,8 @@
 ResumeAnalyzer – Step 4 & 5
 ============================
 Step 4: Build a detailed prompt that sends the resume text + pre-extracted data
-        to Gemini and asks for a structured JSON evaluation.
-Step 5: Parse Gemini's JSON response safely, stripping any markdown fences.
+        to Groq AI and asks for a structured JSON evaluation.
+Step 5: Parse Groq's JSON response safely, stripping any markdown fences.
 """
 
 import json
@@ -14,14 +14,14 @@ import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", FutureWarning)
     try:
-        import google.generativeai as genai
+        from groq import Groq
         from app.core.config import settings
-        genai.configure(api_key=settings.GEMINI_API_KEY)
-        _GEMINI_AVAILABLE = True
+        _client = Groq(api_key=settings.GROQ_API_KEY)
+        _GROQ_AVAILABLE = True
     except ImportError:
-        _GEMINI_AVAILABLE = False
+        _GROQ_AVAILABLE = False
 
-_MODEL = "gemini-2.5-flash"
+_MODEL = "llama-3.3-70b-versatile"
 
 
 # ---------------------------------------------------------------------------
@@ -96,7 +96,7 @@ Scoring guidelines:
 
 
 class ResumeAnalyzer:
-    """Calls Gemini to generate a structured AI analysis of a resume."""
+    """Calls Groq AI to generate a structured AI analysis of a resume."""
 
     # ------------------------------------------------------------------
     # Step 4 – build and send the prompt
@@ -104,7 +104,7 @@ class ResumeAnalyzer:
     @staticmethod
     def analyze_resume(resume_text: str, extracted_data: dict) -> dict:
         """
-        Send the resume to Gemini and return a parsed dict with the AI analysis.
+        Send the resume to Groq AI and return a parsed dict with the AI analysis.
 
         Args:
             resume_text:    Raw text extracted from the resume file.
@@ -114,11 +114,11 @@ class ResumeAnalyzer:
             dict following the ANALYSIS_PROMPT_TEMPLATE schema.
 
         Raises:
-            ValueError: If Gemini returns an invalid / unparseable response.
-            RuntimeError: If the Gemini API call itself fails.
+            ValueError: If Groq AI returns an invalid / unparseable response.
+            RuntimeError: If the Groq API call itself fails.
         """
-        if not _GEMINI_AVAILABLE:
-            raise RuntimeError("Gemini API is not available. Please install google-generativeai package.")
+        if not _GROQ_AVAILABLE:
+            raise RuntimeError("Groq API is not available. Please install groq package and set GROQ_API_KEY environment variable.")
 
         prompt = ANALYSIS_PROMPT_TEMPLATE.format(
             resume_text=resume_text,
@@ -126,27 +126,41 @@ class ResumeAnalyzer:
         )
 
         try:
-            model = genai.GenerativeModel(_MODEL)
-            response = model.generate_content(prompt)
+            response = _client.chat.completions.create(
+                model=_MODEL,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an expert ATS resume analyst. Always respond with valid JSON only, no markdown or extra text."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=0.7,
+                max_tokens=4096,
+                response_format={"type": "json_object"}
+            )
         except Exception as exc:
-            raise RuntimeError(f"Gemini API call failed: {exc}") from exc
+            raise RuntimeError(f"Groq API call failed: {exc}") from exc
 
         # ------------------------------------------------------------------
         # Step 5 – parse the JSON response
         # ------------------------------------------------------------------
-        return ResumeAnalyzer.parse_response(response.text)
+        return ResumeAnalyzer.parse_response(response.choices[0].message.content)
 
     # ------------------------------------------------------------------
-    # Step 5 – parse / sanitise Gemini's JSON response
+    # Step 5 – parse / sanitise Groq's JSON response
     # ------------------------------------------------------------------
     @staticmethod
     def parse_response(response_text: str) -> dict:
         """
-        Strip any markdown code fences from the Gemini response and parse it
+        Strip any markdown code fences from the Groq response and parse it
         as a Python dict.  Validates that required top-level keys are present.
 
         Args:
-            response_text: Raw text returned by Gemini.
+            response_text: Raw text returned by Groq AI.
 
         Returns:
             Parsed dict matching the analysis schema.
@@ -154,7 +168,7 @@ class ResumeAnalyzer:
         Raises:
             ValueError: If JSON is invalid or required keys are missing.
         """
-        # Remove ```json … ``` or ``` … ``` wrappers Gemini sometimes adds
+        # Remove ```json … ``` or ``` … ``` wrappers Groq sometimes adds
         cleaned = re.sub(r"```(?:json)?", "", response_text).strip()
 
         # Remove any trailing ``` that may remain
@@ -164,7 +178,7 @@ class ResumeAnalyzer:
             data = json.loads(cleaned)
         except json.JSONDecodeError as exc:
             raise ValueError(
-                f"Gemini returned an invalid JSON response: {exc}\n"
+                f"Groq AI returned an invalid JSON response: {exc}\n"
                 f"Raw response (first 500 chars): {response_text[:500]}"
             ) from exc
 
@@ -173,7 +187,7 @@ class ResumeAnalyzer:
         missing = required_keys - data.keys()
         if missing:
             raise ValueError(
-                f"Gemini response is missing required keys: {missing}\n"
+                f"Groq AI response is missing required keys: {missing}\n"
                 f"Got keys: {list(data.keys())}"
             )
 

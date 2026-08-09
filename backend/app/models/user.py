@@ -28,6 +28,14 @@ class User(Base):
 
     password_hash = Column(String(255), nullable=False)
 
+    phone = Column(String(20), nullable=True)
+
+    location = Column(String(100), nullable=True)
+
+    professional_title = Column(String(100), nullable=True)
+
+    skills = Column(String(500), nullable=True)
+
     role = Column(Enum(UserRole), nullable=False, default=UserRole.USER,)
 
     is_active = Column(Boolean, default=True)

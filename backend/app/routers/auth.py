@@ -3,18 +3,17 @@ from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.dependencies import get_db
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserResponse
 from app.schemas.auth import TokenResponse
 
 from app.services.user import UserService
-from app.schemas.auth import TokenResponse
 
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"]
 )
 
-@router.post("/register")
+@router.post("/register", response_model=UserResponse)
 def register(
     user: UserCreate,
     db: Session = Depends(get_db),
@@ -28,10 +27,7 @@ def register(
             password=user.password,
         )
 
-        return {
-            "message": "User registered successfully",
-            "user": new_user,
-        }
+        return new_user
 
     except ValueError as e:
         raise HTTPException(

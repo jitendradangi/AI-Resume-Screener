@@ -5,8 +5,10 @@ import Register from "./pages/register";
 import Dashboard from "./pages/dashboard";
 import UploadResume from "./pages/UploadResume";
 import MyResumes from "./pages/MyResumes";
+import ResumeDetails from "./pages/ResumeDetails";
 import ATSScore from "./pages/ATSScore";
 import Jobs from "./pages/jobs";
+import MatchDetails from "./pages/MatchDetails";
 import Profile from "./pages/Profile";
 
 import ProtectedRoute from "./routers/ProtectedRoute";
@@ -47,6 +49,24 @@ function App() {
       />
 
       <Route
+        path="/resume/:public_id"
+        element={
+          <ProtectedRoute>
+            <ResumeDetails />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/ats-score/:public_id"
+        element={
+          <ProtectedRoute>
+            <ATSScore />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/ats-score"
         element={
           <ProtectedRoute>
@@ -60,6 +80,15 @@ function App() {
         element={
           <ProtectedRoute>
             <Jobs />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/match/:resumePublicId/:jobPublicId"
+        element={
+          <ProtectedRoute>
+            <MatchDetails />
           </ProtectedRoute>
         }
       />

@@ -323,7 +323,7 @@ Return ATS Score
 ### AI Integration Module
 
 **Interactions**:
-- Uses **Google Gemini API** for AI processing
+- Uses **Groq AI API** for AI processing
 - Provides analysis to **Resume Analyzer**
 - Provides semantic analysis to **Semantic Matcher**
 - Interacts with **Configuration Module** for API keys
@@ -334,7 +334,7 @@ Return ATS Score
 |-------|-----------|---------|
 | Presentation | FastAPI | Web framework and API |
 | Business Logic | Python | Core application logic |
-| AI/ML | Google Gemini AI | AI-powered analysis |
+| AI/ML | Groq AI | AI-powered analysis |
 | Data Access | SQLAlchemy | ORM and database operations |
 | Data Storage | MySQL | Relational database |
 | Authentication | JWT (python-jose) | Token-based authentication |

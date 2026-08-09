@@ -21,25 +21,29 @@ function Login() {
     });
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  setMessage("");
+    setMessage("");
 
-  try {
-    const data = await loginUser(
-      formData.username,
-      formData.password
-    );
+    try {
+      const data = await loginUser(
+        formData.username,
+        formData.password
+      );
 
-    login(data.access_token);
+      login(data.access_token);
 
-    navigate("/dashboard");
+      navigate("/dashboard");
 
-  } catch (error) {
-    setMessage("Invalid Email or Password");
-  }
-};
+    } catch (error) {
+      if (error.response) {
+        setMessage(error.response.data.detail || "Invalid Email or Password");
+      } else {
+        setMessage("Server connection error. Please ensure the backend is running.");
+      }
+    }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8">

@@ -83,8 +83,8 @@ SECRET_KEY=your-secure-random-secret-key-min-32-chars
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
-# Gemini AI Configuration
-GEMINI_API_KEY=your-gemini-api-key
+# Groq AI Configuration
+GROQ_API_KEY=your-groq-api-key
 
 # CORS Configuration (use your Railway app URL)
 CORS_ORIGINS=https://your-railway-app-url.railway.app

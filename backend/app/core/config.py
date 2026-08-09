@@ -20,11 +20,12 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
-    # Gemini AI
-    GEMINI_API_KEY: str
+    # AI Providers
+    GEMINI_API_KEY: str = ""
+    GROQ_API_KEY: str = ""
     
     # CORS
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:8000"
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:8000,http://localhost:5173,http://127.0.0.1:5173"
     
     # Rate Limiting
     RATE_LIMIT_ENABLED: bool = True

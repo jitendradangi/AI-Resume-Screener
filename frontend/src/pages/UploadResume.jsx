@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { uploadResume } from "../services/resumeService";
 import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE,} from "../constants/fileConstants";
 
 function UploadResume() {
+  const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -66,13 +68,18 @@ function UploadResume() {
       setLoading(true);
       setMessage("");
 
-      await uploadResume(file);
+      const response = await uploadResume(file);
 
       setMessage("✅ Resume uploaded successfully!");
       setFile(null);
 
       // Clear the file input
       e.target.reset();
+
+      // Navigate to resume details page
+      if (response && response.public_id) {
+        navigate(`/resume/${response.public_id}`);
+      }
     } catch (error) {
       setMessage("❌ Upload failed.");
     } finally {

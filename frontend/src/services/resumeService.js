@@ -37,3 +37,27 @@ export const deleteResume = async (id) => {
 
   return response.data;
 };
+
+export const getResumeDetails = async (public_id) => {
+  const response = await api.get(`/resume/${public_id}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  return response.data;
+};
+
+export const analyzeResume = async (public_id) => {
+  const response = await api.post(
+    `/resume/${public_id}/ai-analysis`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+
+  return response.data;
+};

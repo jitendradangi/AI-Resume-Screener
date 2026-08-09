@@ -29,7 +29,7 @@ from app.models.job_match import JobMatch
 from app.models.ats_report import ATSReport
 from app.models.ats_score import ATSScore
 
-from app.routers import auth, resume as resume_router, jobs, ats, job_match
+from app.routers import auth, resume as resume_router, jobs, ats, job_match, user
 from app.dependencies import get_current_user
 
 # Database connection with retry logic for Railway
@@ -69,6 +69,7 @@ app.include_router(resume_router.router)
 app.include_router(jobs.router)
 app.include_router(ats.router)
 app.include_router(job_match.router)
+app.include_router(user.router)
 
 
 @app.middleware("http")

@@ -387,7 +387,7 @@ ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 # AI Services
-GEMINI_API_KEY=your-gemini-api-key
+GROQ_API_KEY=your-groq-api-key
 
 # CORS
 CORS_ORIGINS=https://your-frontend-domain.com

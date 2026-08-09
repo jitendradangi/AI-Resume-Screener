@@ -28,7 +28,7 @@ function Register() {
     setMessage("");
 
     try {
-      await registerUser(formData);
+      const response = await registerUser(formData);
 
       setMessage("Registration Successful!");
 
@@ -37,7 +37,7 @@ function Register() {
       }, 1500);
     } catch (error) {
       if (error.response) {
-        setMessage(error.response.data.detail);
+        setMessage(error.response.data.detail || "Registration failed");
       } else {
         setMessage("Server Error");
       }

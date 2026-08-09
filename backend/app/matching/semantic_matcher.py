@@ -1,7 +1,7 @@
 """
 Semantic Matcher – Sprint 9 Task 7
 ===================================
-Uses Gemini AI to perform semantic comparison between resumes and job descriptions.
+Uses Groq AI to perform semantic comparison between resumes and job descriptions.
 Provides AI-powered insights beyond keyword matching.
 """
 
@@ -15,13 +15,13 @@ from typing import Any
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", FutureWarning)
     try:
-        import google.generativeai as genai
+        from groq import Groq
         from app.core.config import settings
-        genai.configure(api_key=settings.GEMINI_API_KEY)
-        _MODEL = "gemini-2.5-flash"
-        _GEMINI_AVAILABLE = True
+        _client = Groq(api_key=settings.GROQ_API_KEY)
+        _MODEL = "llama-3.3-70b-versatile"
+        _GROQ_AVAILABLE = True
     except ImportError:
-        _GEMINI_AVAILABLE = False
+        _GROQ_AVAILABLE = False
 
 
 # ---------------------------------------------------------------------------
@@ -91,7 +91,7 @@ Consider both technical alignment and soft skills/fit in your evaluation.
 
 
 class SemanticMatcher:
-    """Uses Gemini AI to perform semantic job-resume matching."""
+    """Uses Groq AI to perform semantic job-resume matching."""
 
     # Simple in-memory cache for semantic results
     _cache: dict[str, dict[str, Any]] = {}
@@ -115,7 +115,7 @@ class SemanticMatcher:
         use_cache: bool = True,
     ) -> dict:
         """
-        Send job description and resume to Gemini for semantic analysis.
+        Send job description and resume to Groq AI for semantic analysis.
 
         Args:
             job_description: Raw job description text
@@ -131,11 +131,11 @@ class SemanticMatcher:
                 - reason: Explanation of match quality
 
         Raises:
-            ValueError: If Gemini returns an invalid/unparseable response
-            RuntimeError: If the Gemini API call fails
+            ValueError: If Groq AI returns an invalid/unparseable response
+            RuntimeError: If the Groq API call fails
         """
-        if not _GEMINI_AVAILABLE:
-            raise RuntimeError("Gemini API is not available. Please install google-generativeai package.")
+        if not _GROQ_AVAILABLE:
+            raise RuntimeError("Groq API is not available. Please install groq package and set GROQ_API_KEY environment variable.")
 
         # Check cache
         if use_cache:
@@ -150,12 +150,26 @@ class SemanticMatcher:
         )
 
         try:
-            model = genai.GenerativeModel(_MODEL)
-            response = model.generate_content(prompt)
+            response = _client.chat.completions.create(
+                model=_MODEL,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an expert ATS analyst. Always respond with valid JSON only, no markdown or extra text."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=0.7,
+                max_tokens=2048,
+                response_format={"type": "json_object"}
+            )
         except Exception as exc:
-            raise RuntimeError(f"Gemini API call failed: {exc}") from exc
+            raise RuntimeError(f"Groq API call failed: {exc}") from exc
 
-        result = SemanticMatcher.parse_response(response.text)
+        result = SemanticMatcher.parse_response(response.choices[0].message.content)
 
         # Cache the result
         if use_cache:
@@ -171,10 +185,10 @@ class SemanticMatcher:
     @staticmethod
     def parse_response(response_text: str) -> dict:
         """
-        Strip markdown code fences and parse Gemini's JSON response.
+        Strip markdown code fences and parse Groq AI's JSON response.
 
         Args:
-            response_text: Raw text returned by Gemini
+            response_text: Raw text returned by Groq AI
 
         Returns:
             Parsed dict matching the semantic match schema
@@ -192,7 +206,7 @@ class SemanticMatcher:
             data = json.loads(cleaned)
         except json.JSONDecodeError as exc:
             raise ValueError(
-                f"Gemini returned an invalid JSON response: {exc}\n"
+                f"Groq AI returned an invalid JSON response: {exc}\n"
                 f"Raw response (first 500 chars): {response_text[:500]}"
             ) from exc
 
@@ -201,7 +215,7 @@ class SemanticMatcher:
         missing = required_keys - data.keys()
         if missing:
             raise ValueError(
-                f"Gemini response is missing required keys: {missing}\n"
+                f"Groq AI response is missing required keys: {missing}\n"
                 f"Got keys: {list(data.keys())}"
             )
 
