@@ -24,6 +24,8 @@ def get_user_profile(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
+    
+    # Return the user directly - Pydantic will handle the serialization
     return user
 
 @router.put("/profile", response_model=UserResponse)

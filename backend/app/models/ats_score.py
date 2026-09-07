@@ -77,7 +77,5 @@ class ATSScore(Base):
         nullable=False,
     )
 
-    resume_analysis = relationship(
-        "ResumeAnalysis",
-        back_populates="ats_score",
-    )
+    # Note: Relationship to ResumeAnalysis is handled via resume_analysis_id
+    # Skipping the relationship to avoid circular import issues

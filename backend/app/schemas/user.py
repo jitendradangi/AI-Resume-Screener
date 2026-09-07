@@ -1,4 +1,4 @@
-from pydantic import ConfigDict, EmailStr, Field
+from pydantic import ConfigDict, EmailStr, Field, model_validator
 
 from app.models.enums import UserRole
 from app.schemas.common import BaseResponseSchema, BaseSchema
