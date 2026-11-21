@@ -12,16 +12,28 @@ from functools import lru_cache
 from typing import Any
 
 # Suppress the FutureWarning emitted by google-generativeai 0.8.x
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore", FutureWarning)
-    try:
-        from groq import Groq
-        from app.core.config import settings
-        _client = Groq(api_key=settings.GROQ_API_KEY)
-        _MODEL = "llama-3.3-70b-versatile"
-        _GROQ_AVAILABLE = True
-    except ImportError:
-        _GROQ_AVAILABLE = False
+try:
+    from groq import Groq
+    _GROQ_PKG_INSTALLED = True
+except ImportError:
+    _GROQ_PKG_INSTALLED = False
+
+from app.core.config import settings
+
+
+def get_groq_model() -> str:
+    """Retrieve configured Groq AI model name from settings."""
+    return getattr(settings, "GROQ_MODEL", None) or "llama-3.3-70b-versatile"
+
+
+def get_groq_client():
+    """Get initialized Groq client using settings.GROQ_API_KEY."""
+    if not _GROQ_PKG_INSTALLED:
+        raise RuntimeError("groq package is not installed. Please install it using `pip install groq`.")
+    api_key = getattr(settings, "GROQ_API_KEY", "")
+    if not api_key or api_key.startswith("CHANGE_ME"):
+        raise RuntimeError("GROQ_API_KEY is not set or invalid. Please configure GROQ_API_KEY in your .env file.")
+    return Groq(api_key=api_key)
 
 
 # ---------------------------------------------------------------------------
@@ -134,8 +146,8 @@ class SemanticMatcher:
             ValueError: If Groq AI returns an invalid/unparseable response
             RuntimeError: If the Groq API call fails
         """
-        if not _GROQ_AVAILABLE:
-            raise RuntimeError("Groq API is not available. Please install groq package and set GROQ_API_KEY environment variable.")
+        client = get_groq_client()
+        model_name = get_groq_model()
 
         # Check cache
         if use_cache:
@@ -150,8 +162,8 @@ class SemanticMatcher:
         )
 
         try:
-            response = _client.chat.completions.create(
-                model=_MODEL,
+            response = client.chat.completions.create(
+                model=model_name,
                 messages=[
                     {
                         "role": "system",
@@ -167,6 +179,13 @@ class SemanticMatcher:
                 response_format={"type": "json_object"}
             )
         except Exception as exc:
+            err_str = str(exc)
+            if "does not exist" in err_str or "access" in err_str or "model_not_found" in err_str:
+                raise RuntimeError(
+                    f"Groq API call failed: Model '{model_name}' is invalid or inaccessible. "
+                    f"Please update GROQ_MODEL in your environment/.env file to a supported model (e.g. 'llama-3.3-70b-versatile' or 'llama-3.1-8b-instant'). "
+                    f"Details: {err_str}"
+                ) from exc
             raise RuntimeError(f"Groq API call failed: {exc}") from exc
 
         result = SemanticMatcher.parse_response(response.choices[0].message.content)
